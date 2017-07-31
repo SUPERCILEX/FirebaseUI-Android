@@ -1,4 +1,4 @@
-package com.firebase.ui.auth.ui.accountlink;
+package com.firebase.ui.auth.util.accountlink;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;

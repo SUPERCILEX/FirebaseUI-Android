@@ -25,6 +25,7 @@ import android.support.annotation.StyleRes;
 
 import com.firebase.ui.auth.AuthUI.IdpConfig;
 import com.firebase.ui.auth.util.Preconditions;
+import com.firebase.ui.auth.util.accountlink.ManualMergeService;
 
 import java.util.Collections;
 import java.util.List;
@@ -54,6 +55,7 @@ public class FlowParameters implements Parcelable {
     public final String privacyPolicyUrl;
 
     public final boolean accountLinkingEnabled;
+    public final Class<? extends ManualMergeService> accountLinkingListener;
     public final boolean allowNewEmailAccounts;
 
     public final boolean enableCredentials;
@@ -69,6 +71,7 @@ public class FlowParameters implements Parcelable {
             boolean enableCredentials,
             boolean enableHints,
             boolean accountLinkingEnabled,
+            Class<? extends ManualMergeService> accountLinkingListener,
             boolean allowNewEmailAccounts) {
         this.appName = Preconditions.checkNotNull(appName, "appName cannot be null");
         this.providerInfo = Collections.unmodifiableList(
@@ -80,6 +83,7 @@ public class FlowParameters implements Parcelable {
         this.enableCredentials = enableCredentials;
         this.enableHints = enableHints;
         this.accountLinkingEnabled = accountLinkingEnabled;
+        this.accountLinkingListener = accountLinkingListener;
         this.allowNewEmailAccounts = allowNewEmailAccounts;
     }
 
@@ -118,6 +122,7 @@ public class FlowParameters implements Parcelable {
         dest.writeInt(enableCredentials ? 1 : 0);
         dest.writeInt(enableHints ? 1 : 0);
         dest.writeInt(accountLinkingEnabled ? 1 : 0);
+        dest.writeSerializable(accountLinkingListener);
         dest.writeInt(allowNewEmailAccounts ? 1 : 0);
     }
 
@@ -138,6 +143,8 @@ public class FlowParameters implements Parcelable {
             boolean enableCredentials = in.readInt() != 0;
             boolean enableHints = in.readInt() != 0;
             boolean accountLinkingEnabled = in.readInt() != 0;
+            Class<? extends ManualMergeService> accountLinkingListener =
+                    (Class<? extends ManualMergeService>) in.readSerializable();
             boolean allowNewEmailAccounts = in.readInt() != 0;
 
             return new FlowParameters(
@@ -150,6 +157,7 @@ public class FlowParameters implements Parcelable {
                     enableCredentials,
                     enableHints,
                     accountLinkingEnabled,
+                    accountLinkingListener,
                     allowNewEmailAccounts);
         }
 

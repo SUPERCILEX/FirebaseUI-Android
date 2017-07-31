@@ -209,7 +209,7 @@ public class AuthUiActivity extends AppCompatActivity {
                         .setPrivacyPolicyUrl(getSelectedPrivacyPolicyUrl())
                         .setIsSmartLockEnabled(mEnableCredentialSelector.isChecked(),
                                                mEnableHintSelector.isChecked())
-                        .setIsAccountLinkingEnabled(true)
+                        .setIsAccountLinkingEnabled(true, MergerService.class)
                         .setAllowNewEmailAccounts(mAllowNewEmailAccounts.isChecked())
                         .build(),
                 RC_SIGN_IN);

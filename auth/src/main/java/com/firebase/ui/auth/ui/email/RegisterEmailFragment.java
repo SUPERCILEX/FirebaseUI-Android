@@ -23,7 +23,7 @@ import com.firebase.ui.auth.ui.FragmentBase;
 import com.firebase.ui.auth.ui.HelperActivityBase;
 import com.firebase.ui.auth.ui.ImeHelper;
 import com.firebase.ui.auth.ui.TaskFailureLogger;
-import com.firebase.ui.auth.ui.accountlink.ProfileMerger;
+import com.firebase.ui.auth.util.accountlink.ProfileMerger;
 import com.firebase.ui.auth.ui.accountlink.WelcomeBackIdpPrompt;
 import com.firebase.ui.auth.ui.accountlink.WelcomeBackPasswordPrompt;
 import com.firebase.ui.auth.ui.email.fieldvalidators.EmailFieldValidator;

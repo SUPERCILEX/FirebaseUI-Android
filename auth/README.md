@@ -267,7 +267,7 @@ you may want to link the anonymous account to the permanent account the user sel
 startActivityForResult(
     AuthUI.getInstance()
         .createSignInIntentBuilder()
-        .setIsAccountLinkingEnabled(true) // Any two accounts can be linked together using this method.
+        .setIsAccountLinkingEnabled(true, MyManualMergeService.class) // Any two accounts can be linked together using this method.
         .build(),
     RC_SIGN_IN);
 ```
@@ -329,7 +329,7 @@ and [register an AuthStateListener](https://firebase.google.com/docs/reference/a
 
 ##### Handling account link failures
 
-_Only applies to developers using `setIsAccountLinkingEnabled(true)`._
+_Only applies to developers using `setIsAccountLinkingEnabled(true, Class)`._
 
 Imagine the following scenario: a user already has an existing account and uid in your app.
 Eventually, they switch devices and you automatically sign them in anonymously to give your

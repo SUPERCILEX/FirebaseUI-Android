@@ -40,7 +40,7 @@ import com.firebase.ui.auth.ui.FlowParameters;
 import com.firebase.ui.auth.ui.FragmentBase;
 import com.firebase.ui.auth.ui.HelperActivityBase;
 import com.firebase.ui.auth.ui.TaskFailureLogger;
-import com.firebase.ui.auth.ui.accountlink.ProfileMerger;
+import com.firebase.ui.auth.util.accountlink.ProfileMerger;
 import com.firebase.ui.auth.ui.idp.CredentialSignInHandler;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;

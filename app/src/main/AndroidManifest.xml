@@ -48,6 +48,8 @@
             android:name=".storage.ImageActivity"
             android:label="@string/name_image" />
 
+        <service android:name=".auth.MergerService" />
+
     </application>
 
 </manifest>

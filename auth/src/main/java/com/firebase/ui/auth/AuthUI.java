@@ -32,6 +32,7 @@ import com.firebase.ui.auth.ui.FlowParameters;
 import com.firebase.ui.auth.ui.idp.AuthMethodPickerActivity;
 import com.firebase.ui.auth.util.GoogleSignInHelper;
 import com.firebase.ui.auth.util.Preconditions;
+import com.firebase.ui.auth.util.accountlink.ManualMergeService;
 import com.firebase.ui.auth.util.signincontainer.SmartLockBase;
 import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.common.api.Status;
@@ -354,15 +355,13 @@ public class AuthUI {
              * Specifies the additional permissions that the application will request for this
              * identity provider.
              * <p>
-             * For Facebook permissions see:
-             * https://developers.facebook.com/docs/facebook-login/android
+             * For Facebook permissions see: https://developers.facebook.com/docs/facebook-login/android
              * https://developers.facebook.com/docs/facebook-login/permissions
              * <p>
-             * For Google permissions see:
-             * https://developers.google.com/identity/protocols/googlescopes
+             * For Google permissions see: https://developers.google.com/identity/protocols/googlescopes
              * <p>
-             * Twitter permissions are only configurable through the
-             * <a href="https://apps.twitter.com/">Twitter developer console</a>.
+             * Twitter permissions are only configurable through the <a href="https://apps.twitter.com/">Twitter
+             * developer console</a>.
              */
             public Builder setPermissions(List<String> permissions) {
                 mScopes = permissions;
@@ -445,8 +444,8 @@ public class AuthUI {
             for (IdpConfig config : idpConfigs) {
                 if (mProviders.contains(config)) {
                     throw new IllegalArgumentException("Each provider can only be set once. "
-                                                               + config.getProviderId()
-                                                               + " was set twice.");
+                            + config.getProviderId()
+                            + " was set twice.");
                 } else {
                     mProviders.add(config);
                 }
@@ -551,6 +550,7 @@ public class AuthUI {
      */
     public final class SignInIntentBuilder extends AuthIntentBuilder<SignInIntentBuilder> {
         private boolean mIsAccountLinkingEnabled = false;
+        private Class<? extends ManualMergeService> mAccountLinkingListener;
         private boolean mAllowNewEmailAccounts = true;
 
         private SignInIntentBuilder() {
@@ -559,12 +559,13 @@ public class AuthUI {
 
         /**
          * Links the current user to an account created in the sign-in flow.
-         *
-         * <p>Linking is disabled by default because of a
-         * <a href="https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#handling-account-link-failures">caveat</a>.
+         * <p>
+         * Linking is disabled by default because of a <a href="https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#handling-account-link-failures">caveat</a>.
          */
-        public SignInIntentBuilder setIsAccountLinkingEnabled(boolean enabled) {
+        public SignInIntentBuilder setIsAccountLinkingEnabled(boolean enabled,
+                                                              Class<? extends ManualMergeService> listener) {
             mIsAccountLinkingEnabled = enabled;
+            mAccountLinkingListener = listener;
             return this;
         }
 
@@ -590,6 +591,7 @@ public class AuthUI {
                     mEnableCredentials,
                     mEnableHints,
                     mIsAccountLinkingEnabled,
+                    mAccountLinkingListener,
                     mAllowNewEmailAccounts);
         }
     }

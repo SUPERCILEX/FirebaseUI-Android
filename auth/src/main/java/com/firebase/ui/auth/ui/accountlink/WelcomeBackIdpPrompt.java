@@ -40,6 +40,7 @@ import com.firebase.ui.auth.ui.ExtraConstants;
 import com.firebase.ui.auth.ui.FlowParameters;
 import com.firebase.ui.auth.ui.HelperActivityBase;
 import com.firebase.ui.auth.User;
+import com.firebase.ui.auth.util.accountlink.AccountLinker;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.GoogleAuthProvider;

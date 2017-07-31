@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.ResultCodes;
 import com.firebase.ui.auth.util.AuthHelper;
+import com.firebase.ui.auth.util.accountlink.ManualMergeService;
 import com.firebase.ui.auth.util.signincontainer.SaveSmartLock;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -24,6 +25,7 @@ public class HelperActivityBase extends AppCompatActivity {
     private FlowParameters mFlowParameters;
     private AuthHelper mAuthHelper;
     private ProgressDialogHolder mProgressDialogHolder;
+    private ManualMergeService mAccountLinkingListener;
 
     public static Intent createBaseIntent(
             @NonNull Context context,

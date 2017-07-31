@@ -34,24 +34,17 @@ public class IdpResponse implements Parcelable {
     private final User mUser;
     private final String mToken;
     private final String mSecret;
-    private String mPrevUid;
 
     private final int mErrorCode;
 
     private IdpResponse(int errorCode) {
-        this(null, null, null, null, errorCode);
+        this(null, null, null, errorCode);
     }
 
-    private IdpResponse(
-            User user,
-            String token,
-            String secret,
-            String prevUid,
-            int errorCode) {
+    private IdpResponse(User user, String token, String secret, int errorCode) {
         mUser = user;
         mToken = token;
         mSecret = secret;
-        mPrevUid = prevUid;
         mErrorCode = errorCode;
     }
 
@@ -126,23 +119,18 @@ public class IdpResponse implements Parcelable {
         return mSecret;
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void setPrevUid(String uid) {
-        mPrevUid = uid;
-    }
-
     /**
-     * Only applies to developers using {@link AuthUI.SignInIntentBuilder#setIsAccountLinkingEnabled(boolean)}
+     * Only applies to developers using {@link AuthUI.SignInIntentBuilder#setIsAccountLinkingEnabled(boolean, Class)}
      * set to {@code true}.
      * <p><p>
      * Get the previous user id if a user collision occurred.
      * See the <a href="https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#handling-account-link-failures">README</a>
      * for a much more detailed explanation.
      *
-     * @see AuthUI.SignInIntentBuilder#setIsAccountLinkingEnabled(boolean)
+     * @see AuthUI.SignInIntentBuilder#setIsAccountLinkingEnabled(boolean, Class)
      */
     public String getPrevUid() {
-        return mPrevUid;
+        return mUser.getPrevUid();
     }
 
     /**
@@ -162,7 +150,6 @@ public class IdpResponse implements Parcelable {
         dest.writeParcelable(mUser, flags);
         dest.writeString(mToken);
         dest.writeString(mSecret);
-        dest.writeString(mPrevUid);
         dest.writeInt(mErrorCode);
     }
 
@@ -171,7 +158,6 @@ public class IdpResponse implements Parcelable {
         public IdpResponse createFromParcel(Parcel in) {
             return new IdpResponse(
                     in.<User>readParcelable(User.class.getClassLoader()),
-                    in.readString(),
                     in.readString(),
                     in.readString(),
                     in.readInt()
@@ -189,7 +175,6 @@ public class IdpResponse implements Parcelable {
         private User mUser;
         private String mToken;
         private String mSecret;
-        private String mPrevUid;
 
         public Builder(@NonNull User user) {
             mUser = user;
@@ -202,11 +187,6 @@ public class IdpResponse implements Parcelable {
 
         public Builder setSecret(String secret) {
             mSecret = secret;
-            return this;
-        }
-
-        public Builder setPrevUid(String prevUid) {
-            mPrevUid = prevUid;
             return this;
         }
 
@@ -225,7 +205,7 @@ public class IdpResponse implements Parcelable {
                         "Secret cannot be null when using the Twitter provider.");
             }
 
-            return new IdpResponse(mUser, mToken, mSecret, mPrevUid, ResultCodes.OK);
+            return new IdpResponse(mUser, mToken, mSecret, ResultCodes.OK);
         }
     }
 }
