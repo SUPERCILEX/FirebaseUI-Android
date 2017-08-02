@@ -129,7 +129,7 @@ public final class ManualMergeUtils {
         }
     }
 
-    private static abstract class MergeServiceConnection implements ServiceConnection {
+    private abstract static class MergeServiceConnection implements ServiceConnection {
         protected TaskCompletionSource<Void> mTask;
 
         protected MergeServiceConnection setTask(TaskCompletionSource<Void> task) {
