@@ -332,16 +332,15 @@ and [register an AuthStateListener](https://firebase.google.com/docs/reference/a
 _Only applies to developers using `setIsAccountLinkingEnabled(true, Class)`._
 
 Imagine the following scenario: a user already has an existing account and uid in your app.
-Eventually, they switch devices and you automatically sign them in anonymously to give your
-users a frictionless UX by letting users interact with your app without being forced to log in immediately.
-Now, your anonymously signed in user quickly enters some data into your app before
-signing into their existing account so as not to forget why they came to your app in the first place.
-This UX is great for users, but problematic for us developers:
-your user now has two different ids that match the same person!
-The above example isn't just limited to anonymous accounts; **anytime a user has two
-existing accounts, a user collision will occur and you will have to manually merge those accounts together**.
-To help you do this, FirebaseUI provides a helper method to retrieve
-the user's previous id: `IdpResponse#getPrevUid()`.
+Eventually, they switch devices and you automatically sign them in anonymously to give your users a
+frictionless UX by letting users interact with your app without being forced to log in immediately.
+Now, your anonymously signed in user quickly enters some data into your app before signing into
+their existing account so as not to forget why they came to your app in the first place. This UX is
+great for users, but problematic for us developers: your user now has two different ids that match
+the same person! The above example isn't just limited to anonymous accounts; **anytime a user has
+two existing accounts, a user collision will occur and you will have to manually merge those
+accounts together**. To help you do this, FirebaseUI provides a service to guides you through to
+process of loading and the transferring the user's data.
 
 The following is an example of how you would move data from the user's previous uid to their new one
 using the Firebase Realtime database, thus merging the two accounts.
@@ -349,43 +348,55 @@ The example assumes you are using data structured similarly to the
 [sample](https://github.com/firebase/FirebaseUI-Android/blob/master/app/src/main/java/com/firebase/uidemo/database/ChatHolder.java):
 
 ```java
-@Override
-protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == RC_SIGN_IN && resultCode == RESULT_OK) {
-        IdpResponse response = IdpResponse.fromResultIntent(data);
-        // User is signed in, but we must check to see whether or not automatic account linking failed.
-        String prevUid = response == null ? null : response.getPrevUid();
-        if (prevUid != null) {
-            // A previous user id was found: automatic account linking failed.
-            Log.d(TAG, "handleSignInResponse received an id to be merged: " + prevUid);
+public class MyManualMergeService extends ManualMergeService {
+    private Iterable<DataSnapshot> mChatKeys;
 
-            FirebaseDatabase.getInstance()
+    @Override
+    public Task<Void> onLoadData() {
+        final TaskCompletionSource<Void> loadTask = new TaskCompletionSource<>();
+        FirebaseDatabase.getInstance()
+                .getReference()
+                .child("chatIndices")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        mChatKeys = snapshot.getChildren();
+                        loadTask.setResult(null);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        FirebaseCrash.report(error.toException());
+                    }
+                });
+        return loadTask.getTask();
+    }
+
+    @Override
+    public Task<Void> onTransferData(IdpResponse response) {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference chatIndices = FirebaseDatabase.getInstance()
+                .getReference()
+                .child("chatIndices")
+                .child(uid);
+        for (DataSnapshot snapshot : mChatKeys) {
+            chatIndices.child(snapshot.getKey()).setValue(true);
+            DatabaseReference chat = FirebaseDatabase.getInstance()
                     .getReference()
                     .child("chats")
-                    .orderByChild("uid") // This is the child used in equalTo()
-                    .equalTo(prevUid) // Only get children with uid == prevUid
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot snapshot) {
-                            String currentUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-                            // Change all references of prevUid to the current uid
-                            for (DataSnapshot chatSnapshot : snapshot.getChildren()) {
-                                // Replace old uids with currentUid
-                                chatSnapshot.getRef().child("uid").setValue(currentUid);
-                                chatSnapshot.getRef().child("name").setValue("User " + currentUid.substring(0, 6));
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError error) {
-                            FirebaseCrash.report(error.toException());
-                        }
-                    });
+                    .child(snapshot.getKey());
+            chat.child("uid").setValue(uid);
+            chat.child("name").setValue("User " + uid.substring(0, 6));
         }
+        return null;
     }
 }
+```
+
+You'll also need to add the service to your `AndroidManifest.xml`:
+```xml
+<service android:name=".MyManualMergeService" />
 ```
 
 ##### ID Tokens
