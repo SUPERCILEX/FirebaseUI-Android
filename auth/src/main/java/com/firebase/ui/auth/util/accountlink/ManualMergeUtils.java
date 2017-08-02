@@ -23,10 +23,12 @@ public final class ManualMergeUtils {
         throw new AssertionError("No instance for you!");
     }
 
-    public static <T> Task<T> insertTaskBetweenDataTasks(final HelperActivityBase activity,
-                                                         final IdpResponse response,
-                                                         final Callable<Task<T>> insertTask) {
-        if (response.getUser().getPrevUid() == null) try {
+    public static <T> Task<T> injectSignInTaskBetweenDataTransfer(
+            final HelperActivityBase activity,
+            final IdpResponse response,
+            final Callable<Task<T>> insertTask) {
+        if (response.getUser().getPrevUid() == null
+                || activity.getFlowParams().accountLinkingListener == null) try {
             return insertTask.call();
         } catch (Exception e) {
             throw new IllegalStateException(e);

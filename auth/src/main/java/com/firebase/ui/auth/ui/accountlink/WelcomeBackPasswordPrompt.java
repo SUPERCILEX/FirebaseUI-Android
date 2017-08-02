@@ -76,9 +76,7 @@ public class WelcomeBackPasswordPrompt extends AppCompatBase
             Context context,
             FlowParameters flowParams,
             IdpResponse response) {
-        return HelperActivityBase.createBaseIntent(context,
-                WelcomeBackPasswordPrompt.class,
-                flowParams)
+        return HelperActivityBase.createBaseIntent(context, WelcomeBackPasswordPrompt.class, flowParams)
                 .putExtra(ExtraConstants.EXTRA_IDP_RESPONSE, response);
     }
 
@@ -170,7 +168,7 @@ public class WelcomeBackPasswordPrompt extends AppCompatBase
         }
 
         // Sign in with known email and the password provided
-        ManualMergeUtils.insertTaskBetweenDataTasks(this,
+        ManualMergeUtils.injectSignInTaskBetweenDataTransfer(this,
                 response,
                 new Callable<Task<AuthResult>>() {
                     @Override

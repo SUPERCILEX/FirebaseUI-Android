@@ -284,7 +284,7 @@ public class SignInDelegate extends SmartLockBase<CredentialRequestResult> {
                         .setPrevUid(getAuthHelper().getUidForAccountLinking())
                         .build()).build();
 
-        ManualMergeUtils.insertTaskBetweenDataTasks((HelperActivityBase) getActivity(),
+        ManualMergeUtils.injectSignInTaskBetweenDataTransfer((HelperActivityBase) getActivity(),
                 response,
                 new Callable<Task<AuthResult>>() {
                     @Override

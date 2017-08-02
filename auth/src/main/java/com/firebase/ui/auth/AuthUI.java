@@ -355,13 +355,15 @@ public class AuthUI {
              * Specifies the additional permissions that the application will request for this
              * identity provider.
              * <p>
-             * For Facebook permissions see: https://developers.facebook.com/docs/facebook-login/android
+             * For Facebook permissions see:
+             * https://developers.facebook.com/docs/facebook-login/android
              * https://developers.facebook.com/docs/facebook-login/permissions
              * <p>
-             * For Google permissions see: https://developers.google.com/identity/protocols/googlescopes
+             * For Google permissions see:
+             * https://developers.google.com/identity/protocols/googlescopes
              * <p>
-             * Twitter permissions are only configurable through the <a href="https://apps.twitter.com/">Twitter
-             * developer console</a>.
+             * Twitter permissions are only configurable through the
+             * <a href="https://apps.twitter.com/">Twitter developer console</a>.
              */
             public Builder setPermissions(List<String> permissions) {
                 mScopes = permissions;
@@ -444,8 +446,8 @@ public class AuthUI {
             for (IdpConfig config : idpConfigs) {
                 if (mProviders.contains(config)) {
                     throw new IllegalArgumentException("Each provider can only be set once. "
-                            + config.getProviderId()
-                            + " was set twice.");
+                                                               + config.getProviderId()
+                                                               + " was set twice.");
                 } else {
                     mProviders.add(config);
                 }
@@ -563,7 +565,7 @@ public class AuthUI {
          * Linking is disabled by default because of a <a href="https://github.com/firebase/FirebaseUI-Android/blob/master/auth/README.md#handling-account-link-failures">caveat</a>.
          */
         public SignInIntentBuilder setIsAccountLinkingEnabled(boolean enabled,
-                                                              Class<? extends ManualMergeService> listener) {
+                                                              @Nullable Class<? extends ManualMergeService> listener) {
             mIsAccountLinkingEnabled = enabled;
             mAccountLinkingListener = listener;
             return this;

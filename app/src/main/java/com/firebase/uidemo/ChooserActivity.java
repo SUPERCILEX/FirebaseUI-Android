@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.firebase.uidemo.auth.AuthUiActivity;
-import com.firebase.uidemo.database.ChatIndexActivity;
+import com.firebase.uidemo.database.ChatActivity;
 import com.firebase.uidemo.storage.ImageActivity;
 
 import butterknife.BindView;
@@ -49,7 +49,7 @@ public class ChooserActivity extends AppCompatActivity {
 
     private static class ActivityChooserAdapter extends RecyclerView.Adapter<ActivityStarterHolder> {
         private static final Class[] CLASSES = new Class[]{
-                ChatIndexActivity.class,
+                ChatActivity.class,
                 AuthUiActivity.class,
                 ImageActivity.class,
         };

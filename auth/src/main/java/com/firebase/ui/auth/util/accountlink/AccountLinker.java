@@ -22,10 +22,11 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.concurrent.Callable;
 
 /**
- * "One link to rule them all." - AccountLinker <p><p> AccountLinker can handle up to 3 way account
- * linking: user is currently logged in anonymously, has an existing Google account, and is trying
- * to log in with Facebook. Results: Google and Facebook are linked and the uid of the anonymous
- * account is returned for manual merging.
+ * "One link to rule them all." - AccountLinker
+ * <p><p>
+ * AccountLinker can handle up to 3 way account linking: user is currently logged in anonymously,
+ * has an existing Google account, and is trying to log in with Facebook. Results: Google and
+ * Facebook are linked and the uid of the anonymous account is returned for manual merging.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AccountLinker implements OnSuccessListener<AuthResult>, OnFailureListener {
@@ -119,7 +120,7 @@ public class AccountLinker implements OnSuccessListener<AuthResult>, OnFailureLi
             // Since we still want the user to be able to sign in even though
             // they have an existing account, we are going to save the uid of the
             // current user, log them out, and then sign in with the new credential.
-            Task<AuthResult> signInTask = ManualMergeUtils.insertTaskBetweenDataTasks(mActivity,
+            Task<AuthResult> signInTask = ManualMergeUtils.injectSignInTaskBetweenDataTransfer(mActivity,
                     mIdpResponse,
                     new Callable<Task<AuthResult>>() {
                         @Override

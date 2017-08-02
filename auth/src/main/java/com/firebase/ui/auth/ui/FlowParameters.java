@@ -55,6 +55,7 @@ public class FlowParameters implements Parcelable {
     public final String privacyPolicyUrl;
 
     public final boolean accountLinkingEnabled;
+    @Nullable
     public final Class<? extends ManualMergeService> accountLinkingListener;
     public final boolean allowNewEmailAccounts;
 
@@ -71,7 +72,7 @@ public class FlowParameters implements Parcelable {
             boolean enableCredentials,
             boolean enableHints,
             boolean accountLinkingEnabled,
-            Class<? extends ManualMergeService> accountLinkingListener,
+            @Nullable Class<? extends ManualMergeService> accountLinkingListener,
             boolean allowNewEmailAccounts) {
         this.appName = Preconditions.checkNotNull(appName, "appName cannot be null");
         this.providerInfo = Collections.unmodifiableList(
