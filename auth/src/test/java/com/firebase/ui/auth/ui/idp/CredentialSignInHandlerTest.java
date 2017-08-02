@@ -21,7 +21,6 @@ import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.User;
 import com.firebase.ui.auth.testhelpers.AuthHelperShadow;
 import com.firebase.ui.auth.testhelpers.AutoCompleteTask;
-import com.firebase.ui.auth.testhelpers.CustomRobolectricGradleTestRunner;
 import com.firebase.ui.auth.testhelpers.FakeAuthResult;
 import com.firebase.ui.auth.testhelpers.FakeProviderQueryResult;
 import com.firebase.ui.auth.testhelpers.TestConstants;
@@ -38,7 +37,6 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FacebookAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -49,6 +47,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
@@ -60,7 +59,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(CustomRobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 25)
 public class CredentialSignInHandlerTest {
     private static final int RC_ACCOUNT_LINK = 3;
@@ -104,7 +103,8 @@ public class CredentialSignInHandlerTest {
                 idpResponseCaptor.capture());
 
         assertEquals(smartLock, smartLockCaptor.getValue());
-        assertEquals(AuthHelperShadow.sFirebaseUser, firebaseUserCaptor.getValue());
+        assertEquals(TestConstants.EMAIL,
+                firebaseUserCaptor.getValue().getEmail());
 
         IdpResponse response = idpResponseCaptor.getValue();
         assertEquals(idpResponse.getProviderType(), response.getProviderType());
@@ -141,8 +141,7 @@ public class CredentialSignInHandlerTest {
         when(mockActivity.getDialogHolder()).thenReturn(mockHolder);
 
         // pretend the account has Facebook linked already
-        FirebaseAuth mockFirebaseAuth = AuthHelperShadow.sFirebaseAuth;
-        when(mockFirebaseAuth.fetchProvidersForEmail(TestConstants.EMAIL)).thenReturn(
+        when(AuthHelperShadow.getFirebaseAuth().fetchProvidersForEmail(TestConstants.EMAIL)).thenReturn(
                 new AutoCompleteTask<ProviderQueryResult>(
                         new FakeProviderQueryResult(
                                 Arrays.asList(FacebookAuthProvider.PROVIDER_ID)), true, null));
@@ -202,8 +201,7 @@ public class CredentialSignInHandlerTest {
                 new FirebaseAuthUserCollisionException(LINKING_ERROR, LINKING_EXPLANATION));
 
         // pretend the account has a Password account linked already
-        FirebaseAuth mockFirebaseAuth = AuthHelperShadow.sFirebaseAuth;
-        when(mockFirebaseAuth.fetchProvidersForEmail(TestConstants.EMAIL)).thenReturn(
+        when(AuthHelperShadow.getFirebaseAuth().fetchProvidersForEmail(TestConstants.EMAIL)).thenReturn(
                 new AutoCompleteTask<ProviderQueryResult>(
                         new FakeProviderQueryResult(
                                 Arrays.asList(EmailAuthProvider.PROVIDER_ID)), true, null));

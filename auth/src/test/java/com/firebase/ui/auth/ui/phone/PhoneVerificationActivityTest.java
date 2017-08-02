@@ -14,7 +14,6 @@
 
 package com.firebase.ui.auth.ui.phone;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -28,7 +27,6 @@ import com.firebase.ui.auth.FirebaseAuthError;
 import com.firebase.ui.auth.R;
 import com.firebase.ui.auth.testhelpers.AuthHelperShadow;
 import com.firebase.ui.auth.testhelpers.AutoCompleteTask;
-import com.firebase.ui.auth.testhelpers.CustomRobolectricGradleTestRunner;
 import com.firebase.ui.auth.testhelpers.FakeAuthResult;
 import com.firebase.ui.auth.testhelpers.TestHelper;
 import com.google.firebase.auth.AuthCredential;
@@ -45,9 +43,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.util.Collections;
@@ -69,9 +67,8 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.robolectric.Shadows.shadowOf;
 
-@RunWith(CustomRobolectricGradleTestRunner.class)
+@RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 25)
 public class PhoneVerificationActivityTest {
     private PhoneVerificationActivity mActivity;
@@ -94,7 +91,7 @@ public class PhoneVerificationActivityTest {
                 RuntimeEnvironment.application,
                 TestHelper.getFlowParameters(
                         Collections.singletonList(AuthUI.PHONE_VERIFICATION_PROVIDER)), null);
-        return Robolectric.buildActivity(PhoneVerificationActivity.class).withIntent(startIntent)
+        return Robolectric.buildActivity(PhoneVerificationActivity.class, startIntent)
                 .create(new Bundle()).start().visible().get();
     }
 
@@ -117,8 +114,8 @@ public class PhoneVerificationActivityTest {
                         Collections.singletonList(AuthUI.PHONE_VERIFICATION_PROVIDER)),
                 YE_RAW_PHONE);
 
-        mActivity = Robolectric.buildActivity(PhoneVerificationActivity.class).withIntent
-                (startIntent).create(new Bundle()).start().visible().get();
+        mActivity = Robolectric.buildActivity(PhoneVerificationActivity.class, startIntent)
+                .create(new Bundle()).start().visible().get();
 
         VerifyPhoneNumberFragment verifyPhoneNumberFragment = (VerifyPhoneNumberFragment)
                 mActivity.getSupportFragmentManager()
@@ -149,16 +146,16 @@ public class PhoneVerificationActivityTest {
     @Test
     @Config(shadows = {AuthHelperShadow.class})
     public void testVerifyPhoneNumberInvalidPhoneException_showsInlineError() {
-        reset(AuthHelperShadow.sPhoneAuthProvider);
+        reset(AuthHelperShadow.getPhoneAuthProvider());
 
         mActivity.verifyPhoneNumber(PHONE, false);
-        AlertDialog alert = ShadowAlertDialog.getLatestAlertDialog();
-        ShadowAlertDialog sAlert = shadowOf(alert);
         //was dialog displayed
-        assertEquals(mActivity.getString(R.string.fui_verifying), sAlert.getMessage());
+        assertEquals(
+                mActivity.getString(R.string.fui_verifying),
+                mActivity.mProgressDialog.mMessageView.getText());
 
         //was upstream method invoked
-        verify(AuthHelperShadow.sPhoneAuthProvider).verifyPhoneNumber(
+        verify(AuthHelperShadow.getPhoneAuthProvider()).verifyPhoneNumber(
                 eq(PHONE),
                 eq(AUTO_RETRIEVAL_TIMEOUT_MILLIS),
                 eq(TimeUnit.MILLISECONDS),
@@ -180,10 +177,10 @@ public class PhoneVerificationActivityTest {
     @Test
     @Config(shadows = {AuthHelperShadow.class})
     public void testVerifyPhoneNumberNoMsgException_showsAlertDialog() {
-        reset(AuthHelperShadow.sPhoneAuthProvider);
+        reset(AuthHelperShadow.getPhoneAuthProvider());
 
         mActivity.verifyPhoneNumber(PHONE, false);
-        verify(AuthHelperShadow.sPhoneAuthProvider).verifyPhoneNumber(
+        verify(AuthHelperShadow.getPhoneAuthProvider()).verifyPhoneNumber(
                 eq(PHONE),
                 eq(AUTO_RETRIEVAL_TIMEOUT_MILLIS),
                 eq(TimeUnit.MILLISECONDS),
@@ -203,16 +200,16 @@ public class PhoneVerificationActivityTest {
     @Test
     @Config(shadows = {AuthHelperShadow.class})
     public void testVerifyPhoneNumber_success() {
-        reset(AuthHelperShadow.sPhoneAuthProvider);
+        reset(AuthHelperShadow.getPhoneAuthProvider());
         testSendConfirmationCode();
     }
 
     @Test
     @Config(shadows = {AuthHelperShadow.class})
     public void testSubmitCode_badCodeShowsAlertDialog() {
-        reset(AuthHelperShadow.sPhoneAuthProvider);
+        reset(AuthHelperShadow.getPhoneAuthProvider());
         AuthHelperShadow.sCanLinkAccounts = false;
-        when(AuthHelperShadow.sFirebaseAuth.signInWithCredential(any(AuthCredential.class)))
+        when(AuthHelperShadow.getFirebaseAuth().signInWithCredential(any(AuthCredential.class)))
                 .thenReturn(new AutoCompleteTask<AuthResult>(
                         null, true,
                         new FirebaseAuthInvalidCredentialsException(
@@ -237,7 +234,7 @@ public class PhoneVerificationActivityTest {
     @Test
     @Config(shadows = {AuthHelperShadow.class})
     public void testresendCode_invokesUpstream() {
-        reset(AuthHelperShadow.sPhoneAuthProvider);
+        reset(AuthHelperShadow.getPhoneAuthProvider());
         testSendConfirmationCode();
 
         //test resend code invisible
@@ -255,7 +252,7 @@ public class PhoneVerificationActivityTest {
         assertEquals(View.GONE, r.getVisibility());
 
         //verify resend code was called
-        verify(AuthHelperShadow.sPhoneAuthProvider).verifyPhoneNumber(
+        verify(AuthHelperShadow.getPhoneAuthProvider()).verifyPhoneNumber(
                 eq(PHONE),
                 eq(AUTO_RETRIEVAL_TIMEOUT_MILLIS),
                 eq(TimeUnit.MILLISECONDS),
@@ -267,17 +264,17 @@ public class PhoneVerificationActivityTest {
     @Test
     @Config(shadows = {AuthHelperShadow.class})
     public void testAutoVerify() {
-        reset(AuthHelperShadow.sPhoneAuthProvider);
-        reset(AuthHelperShadow.sSaveSmartLock);
-        reset(AuthHelperShadow.sFirebaseAuth);
+        reset(AuthHelperShadow.getPhoneAuthProvider());
+        reset(AuthHelperShadow.getSaveSmartLockInstance(null));
+        reset(AuthHelperShadow.getFirebaseAuth());
 
-        when(AuthHelperShadow.sFirebaseUser.getPhoneNumber()).thenReturn(PHONE);
-        when(AuthHelperShadow.sFirebaseUser.getEmail()).thenReturn(null);
+        when(AuthHelperShadow.getCurrentUser().getPhoneNumber()).thenReturn(PHONE);
+        when(AuthHelperShadow.getCurrentUser().getEmail()).thenReturn(null);
         AuthHelperShadow.sCanLinkAccounts = false;
-        when(AuthHelperShadow.sFirebaseAuth.signInWithCredential(any(AuthCredential.class)))
+        when(AuthHelperShadow.getFirebaseAuth().signInWithCredential(any(AuthCredential.class)))
                 .thenReturn(new AutoCompleteTask<>(FakeAuthResult.INSTANCE, true, null));
         mActivity.verifyPhoneNumber(PHONE, false);
-        verify(AuthHelperShadow.sPhoneAuthProvider).verifyPhoneNumber(
+        verify(AuthHelperShadow.getPhoneAuthProvider()).verifyPhoneNumber(
                 eq(PHONE),
                 eq(AUTO_RETRIEVAL_TIMEOUT_MILLIS),
                 eq(TimeUnit.MILLISECONDS),
@@ -289,21 +286,21 @@ public class PhoneVerificationActivityTest {
                 = callbacksArgumentCaptor.getValue();
 
         onVerificationStateChangedCallbacks.onVerificationCompleted(credential);
-        verify(AuthHelperShadow.sFirebaseAuth).signInWithCredential(any(AuthCredential.class));
+        verify(AuthHelperShadow.getFirebaseAuth()).signInWithCredential(any(AuthCredential.class));
     }
 
     @Test
     @Config(shadows = {AuthHelperShadow.class})
     public void testSMSAutoRetrieval() {
-        reset(AuthHelperShadow.sPhoneAuthProvider);
-        reset(AuthHelperShadow.sSaveSmartLock);
+        reset(AuthHelperShadow.getPhoneAuthProvider());
+        reset(AuthHelperShadow.getSaveSmartLockInstance(null));
         when(credential.getSmsCode()).thenReturn("123456");
 
-        when(AuthHelperShadow.sFirebaseUser.getPhoneNumber()).thenReturn(PHONE);
-        when(AuthHelperShadow.sFirebaseUser.getEmail()).thenReturn(null);
+        when(AuthHelperShadow.getCurrentUser().getPhoneNumber()).thenReturn(PHONE);
+        when(AuthHelperShadow.getCurrentUser().getEmail()).thenReturn(null);
         AuthHelperShadow.sCanLinkAccounts = false;
 
-        when(AuthHelperShadow.sFirebaseAuth.signInWithCredential(any(AuthCredential.class)))
+        when(AuthHelperShadow.getFirebaseAuth().signInWithCredential(any(AuthCredential.class)))
                 .thenReturn(new AutoCompleteTask<>(FakeAuthResult.INSTANCE, true, null));
         PhoneAuthProvider.OnVerificationStateChangedCallbacks callbacks =
                 testSendConfirmationCode();
@@ -313,13 +310,13 @@ public class PhoneVerificationActivityTest {
         //verify confirmation code set
         assertEquals("1 2 3 4 5 6", mConfirmationCodeEditText.getText().toString());
         //verify credential saves
-        verify(AuthHelperShadow.sFirebaseAuth).signInWithCredential(credential);
+        verify(AuthHelperShadow.getFirebaseAuth()).signInWithCredential(credential);
     }
 
     @Test
     @Config(shadows = {AuthHelperShadow.class})
     public void testEditPhoneNumber_togglesFragments() {
-        reset(AuthHelperShadow.sPhoneAuthProvider);
+        reset(AuthHelperShadow.getPhoneAuthProvider());
         testSendConfirmationCode();
         TextView mEditPhoneTextView = (TextView) mActivity.findViewById(R.id.edit_phone_number);
         mEditPhoneTextView.performClick();
@@ -337,7 +334,7 @@ public class PhoneVerificationActivityTest {
 
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks testSendConfirmationCode() {
         mActivity.verifyPhoneNumber(PHONE, false);
-        verify(AuthHelperShadow.sPhoneAuthProvider).verifyPhoneNumber(
+        verify(AuthHelperShadow.getPhoneAuthProvider()).verifyPhoneNumber(
                 eq(PHONE),
                 eq(AUTO_RETRIEVAL_TIMEOUT_MILLIS),
                 eq(TimeUnit.MILLISECONDS),
