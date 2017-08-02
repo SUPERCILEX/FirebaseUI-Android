@@ -80,6 +80,7 @@ public class TestHelper {
                 true  /* credentialPickerEnabled */,
                 true  /* hintSelectorEnabled */,
                 true, /* accountLinkingEnabled */
+                null, /* accountLinkingListener */
                 true  /* allowNewEmailAccounts */);
     }
 

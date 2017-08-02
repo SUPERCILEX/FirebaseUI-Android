@@ -113,8 +113,7 @@ public final class ManualMergeUtils {
     }
 
     private static void unbindService(HelperActivityBase activity, ServiceConnection connection) {
-        Context appContext = activity.getApplicationContext();
-        appContext.unbindService(connection);
+        activity.getApplicationContext().unbindService(connection);
     }
 
     public static final class MergeBinder extends Binder {

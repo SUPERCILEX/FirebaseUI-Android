@@ -9,7 +9,7 @@
     <!--
     Facebook Application ID, prefixed by 'fb'.  Enables Chrome Custom tabs.
     -->
-    <string name="facebook_login_protocol_scheme" translatable="false">CHANGE-ME</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fbYOUR_APP_ID</string>
 
 
     <!--
